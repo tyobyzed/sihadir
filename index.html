@@ -273,43 +273,7 @@
     alert('Username atau password salah!');
   }
 });
-
-
-  // Contoh redirect sesuai role login
-  if (currentRole === 'admin') {
-    window.location.href = 'dashboard-admin.html';
-  } else if (currentRole === 'guru') {
-    window.location.href = 'dashboard-guru.html';
-  } else if (currentRole === 'siswa') {
-    window.location.href = 'dasboard-siswa.html';
-  }
-});
-
-
-      // Contoh validasi sederhana (ganti dengan autentikasi sebenarnya)
-      alert(`Login sebagai ${currentRole}:\nUsername: ${username}\nPassword: ${password}`);
-      loginModal.style.display = 'none';
-      clearForm();
-    });
-
-    function showLoginOptions() {
-      loginOptionsDiv.style.display = 'block';
-      loginFormDiv.style.display = 'none';
-      currentRole = null;
-    }
-
-    function showLoginForm(role) {
-      loginOptionsDiv.style.display = 'none';
-      loginFormDiv.style.display = 'block';
-      formTitle.textContent = `Login ${role.charAt(0).toUpperCase() + role.slice(1)}`;
-      formLogin.username.value = '';
-      formLogin.password.value = '';
-    }
-
-    function clearForm() {
-      formLogin.username.value = '';
-      formLogin.password.value = '';
-      currentRole = null;
+    
     }
   </script>
 </body>
