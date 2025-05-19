@@ -24,10 +24,9 @@
     }
 
     .logo {
-      position: absolute;
-      top: 10px;
-      left: 20px;
       width: 80px;
+      display: block;
+      margin: 0 auto 10px auto;
     }
 
     .container {
@@ -37,10 +36,11 @@
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      text-align: center;
     }
 
     h1 {
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
     .btn {
@@ -56,6 +56,60 @@
     .btn:hover {
       background-color: #45a049;
     }
+
+    /* Modal styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    .login-option {
+      margin: 10px 0;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      width: 80%;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-option:hover {
+      background-color: #45a049;
+    }
+
+    .close-btn {
+      background-color: #e74c3c;
+      margin-top: 15px;
+      width: 80%;
+    }
+
+    .close-btn:hover {
+      background-color: #c0392b;
+    }
+
   </style>
 </head>
 <body>
@@ -68,7 +122,45 @@
   <div class="container">
     <h2>Selamat Datang di Aplikasi Kehadiran</h2>
     <p>Silakan login untuk melanjutkan.</p>
-    <button class="btn">Login</button>
+    <button class="btn" id="loginBtn">Login</button>
   </div>
+
+  <!-- Modal for login options -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h3>Pilih Jenis Login</h3>
+      <button class="login-option" onclick="login('admin')">Login Admin</button><br/>
+      <button class="login-option" onclick="login('guru')">Login Guru</button><br/>
+      <button class="login-option" onclick="login('siswa')">Login Siswa</button><br/>
+      <button class="login-option close-btn" id="closeModalBtn">Batal</button>
+    </div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById('loginBtn');
+    const loginModal = document.getElementById('loginModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    loginBtn.addEventListener('click', () => {
+      loginModal.style.display = 'block';
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      loginModal.style.display = 'none';
+    });
+
+    // Close modal if user clicks outside modal-content
+    window.onclick = function(event) {
+      if(event.target == loginModal) {
+        loginModal.style.display = 'none';
+      }
+    }
+
+    function login(role) {
+      alert('Anda memilih login sebagai: ' + role);
+      // Di sini bisa diarahkan ke halaman login sesuai role
+      loginModal.style.display = 'none';
+    }
+  </script>
 </body>
 </html>
