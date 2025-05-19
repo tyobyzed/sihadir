@@ -70,13 +70,14 @@
 
     .modal-content {
       background-color: #fefefe;
-      margin: 15% auto;
+      margin: 10% auto;
       padding: 20px;
       border-radius: 8px;
       width: 90%;
       max-width: 400px;
       text-align: center;
       box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      position: relative;
     }
 
     .modal-content h3 {
@@ -110,6 +111,59 @@
       background-color: #c0392b;
     }
 
+    /* Form login styles */
+    form {
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px 0;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    .form-buttons {
+      text-align: center;
+    }
+
+    .form-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+
+    .back-btn {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .back-btn:hover {
+      background-color: #c0392b;
+    }
   </style>
 </head>
 <body>
@@ -127,12 +181,31 @@
 
   <!-- Modal for login options -->
   <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h3>Pilih Jenis Login</h3>
-      <button class="login-option" onclick="login('admin')">Login Admin</button><br/>
-      <button class="login-option" onclick="login('guru')">Login Guru</button><br/>
-      <button class="login-option" onclick="login('siswa')">Login Siswa</button><br/>
-      <button class="login-option close-btn" id="closeModalBtn">Batal</button>
+    <div class="modal-content" id="modalContent">
+      <!-- Default is login options -->
+      <div id="loginOptions">
+        <h3>Pilih Jenis Login</h3>
+        <button class="login-option" data-role="admin">Login Admin</button><br/>
+        <button class="login-option" data-role="guru">Login Guru</button><br/>
+        <button class="login-option" data-role="siswa">Login Siswa</button><br/>
+        <button class="login-option close-btn" id="closeModalBtn">Batal</button>
+      </div>
+
+      <!-- Login form hidden initially -->
+      <div id="loginForm" style="display:none;">
+        <h3 id="formTitle">Login</h3>
+        <form id="formLogin">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required />
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+          <div class="form-buttons">
+            <button type="submit" class="submit-btn">Masuk</button>
+            <button type="button" class="back-btn" id="backBtn">Kembali</button>
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 
@@ -141,25 +214,78 @@
     const loginModal = document.getElementById('loginModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
+    const loginOptionsDiv = document.getElementById('loginOptions');
+    const loginFormDiv = document.getElementById('loginForm');
+    const formTitle = document.getElementById('formTitle');
+    const formLogin = document.getElementById('formLogin');
+    const backBtn = document.getElementById('backBtn');
+
+    let currentRole = null;
+
     loginBtn.addEventListener('click', () => {
       loginModal.style.display = 'block';
+      showLoginOptions();
     });
 
     closeModalBtn.addEventListener('click', () => {
       loginModal.style.display = 'none';
+      clearForm();
     });
 
-    // Close modal if user clicks outside modal-content
     window.onclick = function(event) {
       if(event.target == loginModal) {
         loginModal.style.display = 'none';
+        clearForm();
       }
     }
 
-    function login(role) {
-      alert('Anda memilih login sebagai: ' + role);
-      // Di sini bisa diarahkan ke halaman login sesuai role
+    // Event delegation for login options buttons
+    loginOptionsDiv.addEventListener('click', e => {
+      if(e.target.classList.contains('login-option') && e.target.dataset.role) {
+        currentRole = e.target.dataset.role;
+        showLoginForm(currentRole);
+      }
+    });
+
+    backBtn.addEventListener('click', () => {
+      showLoginOptions();
+      clearForm();
+    });
+
+    formLogin.addEventListener('submit', e => {
+      e.preventDefault();
+      const username = formLogin.username.value.trim();
+      const password = formLogin.password.value.trim();
+
+      if(username === '' || password === '') {
+        alert('Username dan password harus diisi!');
+        return;
+      }
+
+      // Contoh validasi sederhana (ganti dengan autentikasi sebenarnya)
+      alert(`Login sebagai ${currentRole}:\nUsername: ${username}\nPassword: ${password}`);
       loginModal.style.display = 'none';
+      clearForm();
+    });
+
+    function showLoginOptions() {
+      loginOptionsDiv.style.display = 'block';
+      loginFormDiv.style.display = 'none';
+      currentRole = null;
+    }
+
+    function showLoginForm(role) {
+      loginOptionsDiv.style.display = 'none';
+      loginFormDiv.style.display = 'block';
+      formTitle.textContent = `Login ${role.charAt(0).toUpperCase() + role.slice(1)}`;
+      formLogin.username.value = '';
+      formLogin.password.value = '';
+    }
+
+    function clearForm() {
+      formLogin.username.value = '';
+      formLogin.password.value = '';
+      currentRole = null;
     }
   </script>
 </body>
