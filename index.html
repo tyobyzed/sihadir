@@ -1,279 +1,82 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SIHADIR - SMA Negeri 20</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-image: url('background.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      backdrop-filter: brightness(0.9);
-    }
+<script>
+  const loginBtn = document.getElementById('loginBtn');
+  const loginModal = document.getElementById('loginModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
 
-    .header {
-      background-color: rgba(0, 0, 0, 0.6);
-      color: white;
-      padding: 20px;
-      text-align: center;
-      position: relative;
-    }
+  const loginOptionsDiv = document.getElementById('loginOptions');
+  const loginFormDiv = document.getElementById('loginForm');
+  const formTitle = document.getElementById('formTitle');
+  const formLogin = document.getElementById('formLogin');
+  const backBtn = document.getElementById('backBtn');
 
-    .logo {
-      width: 80px;
-      display: block;
-      margin: 0 auto 10px auto;
-    }
+  let currentRole = null;
 
-    .container {
-      background-color: rgba(255, 255, 255, 0.95);
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      text-align: center;
-    }
+  loginBtn.addEventListener('click', () => {
+    loginModal.style.display = 'block';
+    showLoginOptions();
+  });
 
-    h1 {
-      margin-bottom: 5px;
-    }
+  closeModalBtn.addEventListener('click', () => {
+    loginModal.style.display = 'none';
+    clearForm();
+  });
 
-    .btn {
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      padding: 12px 24px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    .btn:hover {
-      background-color: #45a049;
-    }
-
-    /* Modal styles */
-    .modal {
-      display: none; /* Hidden by default */
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.5);
-    }
-
-    .modal-content {
-      background-color: #fefefe;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      position: relative;
-    }
-
-    .modal-content h3 {
-      margin-top: 0;
-    }
-
-    .login-option {
-      margin: 10px 0;
-      padding: 12px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      width: 80%;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .login-option:hover {
-      background-color: #45a049;
-    }
-
-    .close-btn {
-      background-color: #e74c3c;
-      margin-top: 15px;
-      width: 80%;
-    }
-
-    .close-btn:hover {
-      background-color: #c0392b;
-    }
-
-    /* Form login styles */
-    form {
-      margin-top: 15px;
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      margin: 10px 0 5px 0;
-      font-weight: 600;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    .form-buttons {
-      text-align: center;
-    }
-
-    .form-buttons button {
-      margin: 0 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .submit-btn {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .submit-btn:hover {
-      background-color: #45a049;
-    }
-
-    .back-btn {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .back-btn:hover {
-      background-color: #c0392b;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <img src="logo-sekolah.png" alt="Logo Sekolah" class="logo" />
-    <h1>SIHADIR</h1>
-    <p>Sistem Kehadiran Siswa - SMA Negeri 20</p>
-  </div>
-
-  <div class="container">
-    <h2>Selamat Datang di Aplikasi Kehadiran</h2>
-    <p>Silakan login untuk melanjutkan.</p>
-    <button class="btn" id="loginBtn">Login</button>
-  </div>
-
-  <!-- Modal for login options -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content" id="modalContent">
-      <!-- Default is login options -->
-      <div id="loginOptions">
-        <h3>Pilih Jenis Login</h3>
-        <button class="login-option" data-role="admin">Login Admin</button><br/>
-        <button class="login-option" data-role="guru">Login Guru</button><br/>
-        <button class="login-option" data-role="siswa">Login Siswa</button><br/>
-        <button class="login-option close-btn" id="closeModalBtn">Batal</button>
-      </div>
-
-      <!-- Login form hidden initially -->
-      <div id="loginForm" style="display:none;">
-        <h3 id="formTitle">Login</h3>
-        <form id="formLogin">
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" required />
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required />
-          <div class="form-buttons">
-            <button type="submit" class="submit-btn">Masuk</button>
-            <button type="button" class="back-btn" id="backBtn">Kembali</button>
-          </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    const loginBtn = document.getElementById('loginBtn');
-    const loginModal = document.getElementById('loginModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-
-    const loginOptionsDiv = document.getElementById('loginOptions');
-    const loginFormDiv = document.getElementById('loginForm');
-    const formTitle = document.getElementById('formTitle');
-    const formLogin = document.getElementById('formLogin');
-    const backBtn = document.getElementById('backBtn');
-
-    let currentRole = null;
-
-    loginBtn.addEventListener('click', () => {
-      loginModal.style.display = 'block';
-      showLoginOptions();
-    });
-
-    closeModalBtn.addEventListener('click', () => {
+  window.onclick = function(event) {
+    if(event.target == loginModal) {
       loginModal.style.display = 'none';
       clearForm();
-    });
+    }
+  }
 
-    window.onclick = function(event) {
-      if(event.target == loginModal) {
-        loginModal.style.display = 'none';
-        clearForm();
-      }
+  // Tampilkan form login sesuai peran
+  loginOptionsDiv.addEventListener('click', e => {
+    if(e.target.classList.contains('login-option') && e.target.dataset.role) {
+      currentRole = e.target.dataset.role;
+      showLoginForm(currentRole);
+    }
+  });
+
+  backBtn.addEventListener('click', () => {
+    showLoginOptions();
+    clearForm();
+  });
+
+  formLogin.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = formLogin.username.value.trim();
+    const password = formLogin.password.value.trim();
+
+    if (username === '' || password === '') {
+      alert('Username dan password harus diisi!');
+      return;
     }
 
-    // Event delegation for login options buttons
-    loginOptionsDiv.addEventListener('click', e => {
-      if(e.target.classList.contains('login-option') && e.target.dataset.role) {
-        currentRole = e.target.dataset.role;
-        showLoginForm(currentRole);
-      }
-    });
+    // Login sederhana
+    if (currentRole === 'admin' && username === 'admin' && password === 'admin123') {
+      window.location.href = 'admin.html';
+    } else if (currentRole === 'guru' && username === 'guru' && password === 'guru123') {
+      window.location.href = 'guru.html';
+    } else if (currentRole === 'siswa' && username === 'siswa' && password === 'siswa123') {
+      window.location.href = 'siswa.html';
+    } else {
+      alert('Username atau password salah!');
+    }
+  });
 
-    backBtn.addEventListener('click', () => {
-      showLoginOptions();
-      clearForm();
-    });
-
-    formLogin.addEventListener('submit', e => {
-  e.preventDefault();
-  const username = formLogin.username.value.trim();
-  const password = formLogin.password.value.trim();
-
-  if (username === '' || password === '') {
-    alert('Username dan password harus diisi!');
-    return;
+  function showLoginOptions() {
+    loginOptionsDiv.style.display = 'block';
+    loginFormDiv.style.display = 'none';
   }
 
-  // Contoh login dengan password tetap
-  if (currentRole === 'admin' && username === 'admin' && password === 'admin123') {
-    window.location.href = 'admin.html';
-  } else if (currentRole === 'guru' && username === 'guru' && password === 'guru123') {
-    window.location.href = 'guru.html';
-  } else if (currentRole === 'siswa' && username === 'siswa' && password === 'siswa123') {
-    window.location.href = 'siswa.html';
-  } else {
-    alert('Username atau password salah!');
+  function showLoginForm(role) {
+    loginOptionsDiv.style.display = 'none';
+    loginFormDiv.style.display = 'block';
+    formTitle.textContent = `Login ${role.charAt(0).toUpperCase() + role.slice(1)}`;
   }
-});
 
-  </script>
-</body>
-</html>
+  function clearForm() {
+    formLogin.username.value = '';
+    formLogin.password.value = '';
+    currentRole = null;
+  }
+</script>
