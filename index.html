@@ -262,6 +262,19 @@
     return;
   }
 
+  // Contoh login dengan password tetap
+  if (currentRole === 'admin' && username === 'admin' && password === 'admin123') {
+    window.location.href = 'admin.html';
+  } else if (currentRole === 'guru' && username === 'guru' && password === 'guru123') {
+    window.location.href = 'guru.html';
+  } else if (currentRole === 'siswa' && username === 'siswa' && password === 'siswa123') {
+    window.location.href = 'siswa.html';
+  } else {
+    alert('Username atau password salah!');
+  }
+});
+
+
   // Contoh redirect sesuai role login
   if (currentRole === 'admin') {
     window.location.href = 'dashboard-admin.html';
