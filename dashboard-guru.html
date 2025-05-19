@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Guru</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Dashboard Guru</h1>
+    <button id="logoutBtn">Logout</button>
+    <button onclick="cetakPDF()">Cetak Rekap PDF</button>
+  </header>
+
+  <section>
+    <h2>Input Kehadiran Hari Ini</h2>
+    <form id="absenForm">
+      <table id="absenTable" border="1" cellpadding="8" cellspacing="0" style="width: 100%; max-width: 800px;">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Kelas</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Baris siswa + select status -->
+        </tbody>
+      </table>
+      <br />
+      <button type="submit">Simpan Kehadiran</button>
+    </form>
+  </section>
+
+  <script>
+    const SPREADSHEET_ID = '1rrt2ivDW8dIbC5Tf8UpJpzWtbUN_4uFSxVpWnOPyWgk';
+    const API_KEY = 'AIzaSyCXqe83I2RilHrPw4Wy8U4eA_hah7rnP7Q';
+    const SISWA_RANGE = 'Siswa!A2:C';
+
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user || user.role !== 'guru') {
+      alert('Anda harus login sebagai guru!');
+      window.location.href = 'index.html';
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    const absenTableBody = document.querySelector('#absenTable tbody');
+    const absenForm = document.getElementById('absenForm');
+
+    async function fetchSiswa() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SISWA_RANGE}?key=${API_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Gagal mengambil data siswa');
+      const data = await res.json();
+      return data.values;
+    }
+
+    function renderAbsenTable(siswaList) {
+      absenTableBody.innerHTML = '';
+      siswaList.forEach((row, index) => {
+        const [id, nama, kelas] = row;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            ${nama}
+            <input type="hidden" name="id[]" value="${id}">
+            <input type="hidden" name="nama[]" value="${nama}">
+            <input type="hidden" name="kelas[]" value="${kelas}">
+          </td>
+          <td>${kelas}</td>
+          <td>
+            <select name="status[]" required>
+              <option value="">-- Pilih --</option>
+              <option value="Hadir">Hadir</option>
+              <option value="Izin">Izin</option>
+              <option value="Sakit">Sakit</option>
+              <option value="Alpha">Alpha</option>
+            </select>
+          </td>
+        `;
+        absenTableBody.appendChild(tr);
+      });
+    }
+
+    async function loadSiswa() {
+      try {
+        const siswaList = await fetchSiswa();
+        renderAbsenTable(siswaList);
+      } catch (error) {
+        alert('Gagal memuat data siswa');
+        console.error(error);
+      }
+    }
+
+    loadSiswa();
+
+    absenForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const tanggal = new Date().toLocaleDateString('id-ID');
+      const idList = [...document.getElementsByName('id[]')].map(el => el.value);
+      const namaList = [...document.getElementsByName('nama[]')].map(el => el.value);
+      const kelasList = [...document.getElementsByName('kelas[]')].map(el => el.value);
+      const statusList = [...document.getElementsByName('status[]')].map(el => el.value);
+
+      const values = idList.map((id, i) => [
+        tanggal,
+        id,
+        namaList[i],
+        kelasList[i],
+        statusList[i],
+        user.nama
+      ]);
+
+      const body = {
+        values: values
+      };
+
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Kehadiran!A1:F:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (res.ok) {
+        alert('Kehadiran berhasil disimpan!');
+      } else {
+        alert('Gagal menyimpan data.');
+        console.error(await res.text());
+      }
+    });
+  </script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+  async function cetakPDF() {
+    const element = document.querySelector('#rekapContainer'); // pastikan kontainer rekap punya ID ini
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL('image/png');
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 10, pageWidth, imgHeight);
+    pdf.save('rekap-kehadiran.pdf');
+  }
+</script>
+
+</body>
+</html>

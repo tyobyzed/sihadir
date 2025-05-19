@@ -1,0 +1,146 @@
+/* Reset dan font */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #f4f7fa;
+  padding: 20px;
+  color: #333;
+}
+
+/* Header */
+header {
+  background: #007acc;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+header h1 {
+  font-size: 24px;
+}
+
+header button {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+header button:hover {
+  background: #e60000;
+}
+
+/* Form login */
+form {
+  max-width: 400px;
+  background: white;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+form h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 18px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  width: 100%;
+  background: #007acc;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #005b99;
+}
+
+/* Table umum */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+table thead {
+  background: #007acc;
+  color: white;
+}
+
+table th, table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Button umum */
+button {
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #007acc;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #005b99;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  header h1 {
+    font-size: 20px;
+  }
+
+  form {
+    padding: 20px;
+  }
+
+  table th, table td {
+    padding: 10px;
+  }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Siswa</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Dashboard Siswa</h1>
+    <button id="logoutBtn">Logout</button>
+  </header>
+
+  <section>
+    <h2>Rekap Kehadiran: <span id="namaSiswa"></span></h2>
+    
+    <canvas id="grafikKehadiran" width="400" height="200"></canvas>
+
+    <h3>Detail Kehadiran</h3>
+    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; max-width: 700px;">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabelKehadiran">
+        <!-- Data akan dimuat di sini -->
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    const SPREADSHEET_ID = '1rrt2ivDW8dIbC5Tf8UpJpzWtbUN_4uFSxVpWnOPyWgk';
+    const API_KEY = 'AIzaSyCXqe83I2RilHrPw4Wy8U4eA_hah7rnP7Q';
+    const RANGE = 'Kehadiran!A2:F';
+
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user || user.role !== 'siswa') {
+      alert('Anda harus login sebagai siswa!');
+      window.location.href = 'index.html';
+    }
+
+    document.getElementById('namaSiswa').textContent = user.nama;
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    const tableBody = document.getElementById('tabelKehadiran');
+
+    async function fetchKehadiran() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.values;
+    }
+
+    async function tampilkanData() {
+      const data = await fetchKehadiran();
+      const idSiswa = user.id;
+      const dataSiswa = data.filter(row => row[1] === idSiswa);
+
+      const count = {
+        Hadir: 0,
+        Izin: 0,
+        Sakit: 0,
+        Alpha: 0
+      };
+
+      tableBody.innerHTML = '';
+
+      dataSiswa.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row[0]}</td><td>${row[4]}</td>`;
+        tableBody.appendChild(tr);
+        if (count[row[4]] !== undefined) count[row[4]]++;
+      });
+
+      // Buat grafik
+      const ctx = document.getElementById('grafikKehadiran').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Hadir', 'Izin', 'Sakit', 'Alpha'],
+          datasets: [{
+            label: 'Jumlah',
+            data: [count.Hadir, count.Izin, count.Sakit, count.Alpha],
+            backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#f44336']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              stepSize: 1
+            }
+          }
+        }
+      });
+    }
+
+    tampilkanData();
+  </script>
+</body>
+</html>
