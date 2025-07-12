@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Absensi Otomatis</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      color: #333;
+    }
+    #reader {
+      width: 320px;
+      margin: 20px auto;
+    }
+    #result {
+      font-size: 16px;
+      color: #444;
+      margin-top: 15px;
+      white-space: pre-wrap;
+    }
+    .button-container {
+      margin-top: 30px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h2>📷 Scan Barcode Kehadiran</h2>
+
+  <div id="reader"></div>
+  <div id="result">Menunggu scan barcode...</div>
+
+  <div class="button-container">
+    <button onclick="location.href='admin.html'">🔐 Login Admin</button>
+    <button onclick="location.href='guru.html'">👩‍🏫 Login Guru</button>
+  </div>
+
+  <script>
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwYsxcncgzenWRc8ETtQeyQvO4ptYeZSwF9xU-iCydj9H81uvG4LhtQYwRwkbvsnGGktg/exec';
+
+    function onScanSuccess(decodedText) {
+      document.getElementById('result').innerText =
+        "NISN Terbaca: " + decodedText + "\n⏳ Mengirim data...";
+
+      fetch(webAppUrl, {
+        method: 'POST',
+        body: JSON.stringify({ nisn: decodedText }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          document.getElementById('result').innerText += "\n✅ Absensi berhasil dicatat!";
+        } else {
+          document.getElementById('result').innerText += "\n❌ NISN tidak ditemukan!";
+        }
+      })
+      .catch(err => {
+        document.getElementById('result').innerText += "\n❌ Gagal koneksi ke server.";
+      });
+
+      html5QrcodeScanner.clear();
+    }
+
+    function onScanError(errorMessage) {
+      // boleh dikosongkan atau log error
+    }
+
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
+  </script>
+</body>
+</html>
