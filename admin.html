@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Input Siswa</title>
+  <style>
+    body { font-family: Arial, text-align: center; background: #f0f0f0; padding: 20px; }
+    input, button { padding: 8px; margin: 5px; }
+    table { width: 90%; margin: 20px auto; border-collapse: collapse; }
+    th, td { border: 1px solid #aaa; padding: 8px; }
+    .barcode { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>🔐 Admin Panel - Input Siswa</h2>
+  <div id="loginSection">
+    <input type="password" id="adminPass" placeholder="Masukkan Password">
+    <button onclick="checkLogin()">Login</button>
+    <p id="loginMsg" style="color:red;"></p>
+  </div>
+
+  <div id="adminContent" style="display:none;">
+    <h3>📝 Tambah Data Siswa</h3>
+    <input type="text" id="nama" placeholder="Nama">
+    <input type="text" id="nisn" placeholder="NISN">
+    <input type="text" id="kelas" placeholder="Kelas">
+    <button onclick="tambahSiswa()">Simpan</button>
+
+    <h3>📋 Daftar Siswa</h3>
+    <table id="siswaTable">
+      <thead>
+        <tr><th>Nama</th><th>NISN</th><th>Kelas</th><th>Barcode</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+  <script>
+    const ADMIN_PASSWORD = "admin123";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwYsxcncgzenWRc8ETtQeyQvO4ptYeZSwF9xU-iCydj9H81uvG4LhtQYwRwkbvsnGGktg/exec";
+
+    function checkLogin() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === ADMIN_PASSWORD) {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminContent").style.display = "block";
+        loadSiswa();
+      } else {
+        document.getElementById("loginMsg").innerText = "Password salah!";
+      }
+    }
+
+    function tambahSiswa() {
+      const nama = document.getElementById("nama").value.trim();
+      const nisn = document.getElementById("nisn").value.trim();
+      const kelas = document.getElementById("kelas").value.trim();
+
+      if (!nama || !nisn || !kelas) return alert("Semua kolom wajib diisi");
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify({ action: "tambah_siswa", nama, nisn, kelas }),
+        headers: { 'Content-Type': 'application/json' }
+      }).then(() => {
+        alert("✅ Data tersimpan");
+        document.getElementById("nama").value = "";
+        document.getElementById("nisn").value = "";
+        document.getElementById("kelas").value = "";
+        loadSiswa();
+      });
+    }
+
+    function loadSiswa() {
+      fetch(scriptURL + "?action=list_siswa")
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#siswaTable tbody");
+          tbody.innerHTML = "";
+          data.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.nama}</td>
+              <td>${row.nisn}</td>
+              <td>${row.kelas}</td>
+              <td>
+                <svg id="bc-${row.nisn}"></svg>
+                <script>
+                  JsBarcode("#bc-${row.nisn}", "${row.nisn}", {
+                    format: "CODE128",
+                    width: 2,
+                    height: 40,
+                    displayValue: true
+                  });
+                </script>
+              </td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+  </script>
+</body>
+</html>
